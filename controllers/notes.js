@@ -1,17 +1,20 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/note')
 
-notesRouter.get('/', (res) => {
-    Note.find({}).then((notes) => {res.json(notes)})}) 
+notesRouter.get('/', (request, response) => {
+    Note.find({}).then((notes) => {
+        response.json(notes.map(note=>note.toJSON()))
+    })
+}) 
 
     
-notesRouter.get('/:id', (req, res, next) => {
-    Note.findById(req.params.id)
+notesRouter.get('/:id', (request, response, next) => {
+    Note.findById(request.params.id)
         .then((note) => {
             if (note) {
-                res.json(note) 
+                response.json(note) 
             } else {
-                res.status(404).end() 
+                response.status(404).end() 
             }
         })
         .catch(error => next(error)) 
@@ -25,7 +28,7 @@ notesRouter.delete('/:id', (req, res, next) => {
         .catch((error) => next(error)) 
 }) 
   
-notesRouter.post('/', (request, response) => {
+notesRouter.post('/', (request, response, next) => {
     const body = request.body 
   
     const note = new Note({
@@ -41,17 +44,17 @@ notesRouter.post('/', (request, response) => {
         .catch(error => next(error))
 }) 
 
-notesRouter.put('/:id', (req, res, next) => {
-    const body = req.body 
+notesRouter.put('/:id', (request, response, next) => {
+    const body = request.body 
   
     const note = {
         content: body.content,
         important: body.important,
     } 
   
-    Note.findByIdAndUpdate(req.params.id, note, { new: true })
+    Note.findByIdAndUpdate(request.params.id, note, { new: true })
         .then((updatedNote) => {
-            res.json(updatedNote) 
+            response.json(updatedNote) 
         })
         .catch((error) => next(error)) 
 }) 
